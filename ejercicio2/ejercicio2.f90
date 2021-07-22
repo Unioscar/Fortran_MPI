@@ -11,7 +11,7 @@ program psdotmpi
     real, allocatable :: x(:)
     real, allocatable :: y(:)
     tam = -1
-    result = 0
+    !result = 0
     call MPI_INIT(ierror)
     call MPI_COMM_RANK(MPI_COMM_WORLD,myrank,ierror)
     call MPI_COMM_SIZE(MPI_COMM_WORLD,numprocs,ierror)
@@ -31,8 +31,9 @@ program psdotmpi
 
         do i = 1, tam
             x(i) = 1/real(i+1)
-            y(i) = i + 1
-            !print *,x(i)
+            y(i) = i+1
+            !print *, 'Valores de X:    Valores de Y:'
+            print *,x(i),y(i)
         enddo
         !Parte que se lleva el proceso padre en caso de no poder dividirse correctamente 
         resto = mod(tam,numprocs) 
@@ -46,6 +47,7 @@ program psdotmpi
     !Tamaño para todas las partes
     slice = tam / numprocs
     if(myrank.EQ.0) then 
+        !result = 0
         do i = 1, slice+resto
             result = result + x(i) * y(i)
         enddo
@@ -59,6 +61,7 @@ program psdotmpi
         allocate (x(slice),y(slice))
         call MPI_Recv(x,slice,MPI_REAL,0,myrank,MPI_COMM_WORLD,estado,ierror)
         call MPI_Recv(y,slice,MPI_REAL,0,myrank,MPI_COMM_WORLD,estado,ierror)
+        !result = 0
         do i = 1, slice
             result = result + x(i) * y(i)
         enddo
